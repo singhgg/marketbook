@@ -1,33 +1,49 @@
 import { MarketAsset } from '../types/market';
 import { db } from '../db';
 import { calculateMBX50 } from '../calculations/mbx50';
+import { DEFAULT_INDICES } from '../data/defaultUniverse';
 
 export class IndexProvider {
   async getIndices(): Promise<MarketAsset[]> {
-    const assets = await db.asset.findMany({
-      where: { assetType: 'INDEX' },
-      include: { indexAsset: true },
-    });
-
     const mbx50Result = calculateMBX50();
 
-    return assets.map((a) => {
-      const isMbx = a.symbol === 'MBX-50';
-      const price = isMbx ? mbx50Result.indexValue : a.price;
-      const change24h = isMbx ? mbx50Result.change24h : a.change24h;
+    try {
+      const assets = await db.asset.findMany({
+        where: { assetType: 'INDEX' },
+        include: { indexAsset: true },
+      });
 
+      if (assets && assets.length > 0) {
+        return assets.map((a) => {
+          const isMbx = a.symbol === 'MBX-50';
+          const price = isMbx ? mbx50Result.indexValue : a.price;
+          const change24h = isMbx ? mbx50Result.change24h : a.change24h;
+
+          return {
+            id: a.id,
+            symbol: a.symbol,
+            name: a.name,
+            assetType: 'INDEX',
+            price,
+            change24h,
+            volume24h: a.volume24h,
+            lastUpdated: new Date().toISOString(),
+            isLive: true,
+            region: a.indexAsset?.region,
+            isProprietary: a.indexAsset?.isProprietary,
+          };
+        });
+      }
+    } catch {
+      // Fall through to DEFAULT_INDICES
+    }
+
+    return DEFAULT_INDICES.map((idx) => {
+      const isMbx = idx.symbol === 'MBX-50';
       return {
-        id: a.id,
-        symbol: a.symbol,
-        name: a.name,
-        assetType: 'INDEX',
-        price,
-        change24h,
-        volume24h: a.volume24h,
-        lastUpdated: new Date().toISOString(),
-        isLive: true,
-        region: a.indexAsset?.region,
-        isProprietary: a.indexAsset?.isProprietary,
+        ...idx,
+        price: isMbx ? mbx50Result.indexValue : idx.price,
+        change24h: isMbx ? mbx50Result.change24h : idx.change24h,
       };
     });
   }
@@ -51,26 +67,32 @@ export class IndexProvider {
       };
     }
 
-    const asset = await db.asset.findUnique({
-      where: { symbol: sym },
-      include: { indexAsset: true },
-    });
+    try {
+      const asset = await db.asset.findUnique({
+        where: { symbol: sym },
+        include: { indexAsset: true },
+      });
 
-    if (!asset || asset.assetType !== 'INDEX') return null;
+      if (asset && asset.assetType === 'INDEX') {
+        return {
+          id: asset.id,
+          symbol: asset.symbol,
+          name: asset.name,
+          assetType: 'INDEX',
+          price: asset.price,
+          change24h: asset.change24h,
+          volume24h: asset.volume24h,
+          lastUpdated: new Date().toISOString(),
+          isLive: true,
+          region: asset.indexAsset?.region,
+          isProprietary: asset.indexAsset?.isProprietary,
+        };
+      }
+    } catch {
+      // Fall through to DEFAULT_INDICES
+    }
 
-    return {
-      id: asset.id,
-      symbol: asset.symbol,
-      name: asset.name,
-      assetType: 'INDEX',
-      price: asset.price,
-      change24h: asset.change24h,
-      volume24h: asset.volume24h,
-      lastUpdated: new Date().toISOString(),
-      isLive: true,
-      region: asset.indexAsset?.region,
-      isProprietary: asset.indexAsset?.isProprietary,
-    };
+    return DEFAULT_INDICES.find((i) => i.symbol.toUpperCase() === sym) ?? null;
   }
 }
 

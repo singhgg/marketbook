@@ -5,11 +5,12 @@
   "description": "MarketBook — Cross-Market Financial Research & Digital Asset Platform",
   "scripts": {
     "dev": "node scripts/prepare-dev.js && next dev -p 3000",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "ts-node prisma/seed.ts"
