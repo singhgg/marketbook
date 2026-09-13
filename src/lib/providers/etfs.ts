@@ -25,8 +25,38 @@ export class ETFProvider {
       category: a.etf?.category,
       aum: a.etf?.aum,
       expenseRatio: a.etf?.expenseRatio,
-      metadata: a.etf?.holdingsSummary,
+      metadata: a.etf?.holdingsSummary ?? null,
+      holdingsSummary: a.etf?.holdingsSummary ?? null,
     }));
+  }
+
+  async getETF(symbol: string): Promise<MarketAsset | null> {
+    const asset = await db.asset.findUnique({
+      where: { symbol: symbol.toUpperCase() },
+      include: { etf: true },
+    });
+
+    if (!asset || asset.assetType !== 'ETF') return null;
+
+    const status = getUSEquityMarketStatus();
+
+    return {
+      id: asset.id,
+      symbol: asset.symbol,
+      name: asset.name,
+      assetType: 'ETF',
+      price: asset.price,
+      change24h: asset.change24h,
+      volume24h: asset.volume24h,
+      lastUpdated: asset.lastUpdated.toISOString(),
+      isLive: status.isOpen,
+      statusText: status.statusText,
+      category: asset.etf?.category,
+      aum: asset.etf?.aum,
+      expenseRatio: asset.etf?.expenseRatio,
+      metadata: asset.etf?.holdingsSummary ?? null,
+      holdingsSummary: asset.etf?.holdingsSummary ?? null,
+    };
   }
 }
 

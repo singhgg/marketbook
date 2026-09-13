@@ -31,6 +31,7 @@ export default function WatchlistPage() {
 
   useEffect(() => {
     loadWatchlists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const activeWatchlist = watchlists.find((w) => w.id === activeWatchlistId) || watchlists[0];

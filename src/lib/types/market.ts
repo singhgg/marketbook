@@ -35,6 +35,8 @@ export interface MarketAsset {
   expenseRatio?: number | null;
   region?: string;
   isProprietary?: boolean;
+  metadata?: string | null;
+  holdingsSummary?: string | null;
 }
 
 export interface LiveTick {
