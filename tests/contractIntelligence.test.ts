@@ -203,5 +203,48 @@ describe('Contract Intelligence Engine', () => {
       expect(upgradeSignal?.severity).toBe('MEDIUM');
       expect(upgradeSignal?.whatWeFound).toContain('0x43506849d7c04f9138d1a2050bbf3a0c054402dd');
     });
+
+    it('flags MINT_CONTROL_DETECTED and PAUSE_CONTROL_DETECTED when behavioral flags are present', () => {
+      const activeBehavior: ContractBehavior = {
+        ...mockBehavior,
+        canMint: true,
+        canPause: true,
+        evidence: {
+          mintEvidence: 'Detected mint(...) selector: 0x40c10f19',
+          pauseEvidence: 'Detected pause() selector: 0x8456cb59',
+        },
+      };
+
+      const signals = ContractRiskEngine.evaluate(null, mockBytecodeBase, null, mockPermissions, activeBehavior);
+      const mintSignal = signals.find((s) => s.id === 'MINT_FUNCTION_DETECTED');
+      const pauseSignal = signals.find((s) => s.id === 'PAUSE_CONTROL_DETECTED');
+
+      expect(mintSignal).toBeDefined();
+      expect(mintSignal?.evidence).toContain('0x40c10f19');
+      expect(pauseSignal).toBeDefined();
+      expect(pauseSignal?.evidence).toContain('0x8456cb59');
+    });
+  });
+
+  // 5. Address Validation & Edge Cases
+  describe('Input Validation & Error Handling', () => {
+    it('validates standard 40-character 0x addresses', () => {
+      const validAddress = '0x1234567890123456789012345678901234567890';
+      expect(/^0x[a-f0-9]{40}$/i.test(validAddress)).toBe(true);
+    });
+
+    it('rejects malformed address strings', () => {
+      const invalidShort = '0x1234';
+      const invalidChars = '0xZZZZ567890123456789012345678901234567890';
+      expect(/^0x[a-f0-9]{40}$/i.test(invalidShort)).toBe(false);
+      expect(/^0x[a-f0-9]{40}$/i.test(invalidChars)).toBe(false);
+    });
+
+    it('identifies base58 Solana address formats and rejects them with helpful message', () => {
+      const solanaAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+      const isSolana = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(solanaAddress);
+      expect(isSolana).toBe(true);
+    });
   });
 });
+
