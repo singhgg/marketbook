@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm Editorial Parchment Palette */
+  --bg-base: #F6F1E8;
+  --bg-secondary: #FBF8F2;
+  --bg-surface: #EFE9DD;
+  --bg-card: #FAF6EF;
+  --bg-subtle: #E8E0D2;
+  
+  /* Borders & Rules */
+  --border-primary: #DFD7C7;
+  --border-subtle: #ECE4D6;
+  --border-strong: #BCB09C;
+
+  /* Ink & Typography */
+  --ink-primary: #191B1D;
+  --ink-secondary: #525861;
+  --ink-tertiary: #7E858E;
+  --ink-muted: #A1A7B0;
+
+  /* Editorial Contrast Terminal Sections */
+  --terminal-bg: #131618;
+  --terminal-surface: #1C2023;
+  --terminal-border: #2B3036;
+  --terminal-text: #F6F1E8;
+  --terminal-muted: #8E969F;
+
+  /* Meaningful Informational Accents */
+  --accent-mbx50: #0E6251;       /* Deep petrol / teal */
+  --accent-btc: #C25E00;         /* Burnt orange */
+  --accent-eth: #4338CA;         /* Indigo */
+  --accent-sol: #7C3AED;         /* Violet */
+  --accent-stocks: #1E40AF;      /* Deep blue */
+  --accent-nft: #C026D3;         /* Coral / violet */
+  --accent-ipo: #B45309;         /* Ochre */
+  
+  /* Financial Directional Colors */
+  --color-positive: #059669;     /* Forest Emerald */
+  --color-positive-bg: #E8F5E9;
+  --color-negative: #DC2626;     /* Muted Crimson */
+  --color-negative-bg: #FEE2E2;
+  --color-anomaly: #D97706;      /* Amber */
+  --color-anomaly-bg: #FEF3C7;
+  --color-neutral: #6B7280;
+
+  /* Typography Fonts */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Monospace restricted specifically to prices, percentages, identifiers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.num-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Financial tick highlight micro-interactions */
+@keyframes tickUpHighlight {
+  0% {
+    background-color: rgba(5, 150, 105, 0.25);
+    color: #047857;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes tickDownHighlight {
+  0% {
+    background-color: rgba(220, 38, 38, 0.25);
+    color: #B91C1C;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.tick-flash-up {
+  animation: tickUpHighlight 1.2s ease-out;
+}
+
+.tick-flash-down {
+  animation: tickDownHighlight 1.2s ease-out;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-tertiary);
+}
+
+/* Clean Editorial Paper Borders and Containers */
+.paper-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+}
+
+.paper-panel-surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+}
+
+.terminal-panel {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+  border: 1px solid var(--terminal-border);
+  border-radius: 4px;
+}
+
+/* Focus and Accessibility */
+a, button, input, select, textarea {
+  outline-color: var(--accent-stocks);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}

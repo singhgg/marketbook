@@ -1,0 +1,292 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  walletAddress String?         @unique
+  username      String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  portfolios    Portfolio[]
+  watchlists    Watchlist[]
+  alerts        Alert[]
+  theses        Thesis[]
+  scenarios     Scenario[]
+  savedSearches SavedSearch[]
+  listings      Listing[]
+  offers        Offer[]
+  nftsOwned     NFT[]           @relation("OwnerNFTs")
+  nftsCreated   NFT[]           @relation("CreatorNFTs")
+}
+
+model Asset {
+  id             String          @id @default(cuid())
+  symbol         String          @unique
+  name           String
+  assetType      String          // CRYPTO, STOCK, ETF, INDEX, NFT
+  price          Float
+  change24h      Float           @default(0.0)
+  volume24h      Float           @default(0.0)
+  marketCap      Float?
+  high52w        Float?
+  low52w         Float?
+  lastUpdated    DateTime        @default(now())
+  isLive         Boolean         @default(true)
+  metadata       String?         // JSON string for type-specific metrics
+
+  crypto         CryptoAsset?
+  stock          Stock?
+  etf            ETF?
+  indexAsset     Index?
+  portfolioItems PortfolioAsset[]
+  watchlistItems WatchlistItem[]
+  alerts         Alert[]
+  theses         Thesis[]
+}
+
+model CryptoAsset {
+  id             String   @id @default(cuid())
+  assetId        String   @unique
+  asset          Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  rank           Int
+  change7d       Float?
+  change30d      Float?
+  fdv            Float?
+  circulatingSupply Float?
+  totalSupply    Float?
+  sparkline      String?  // JSON array of recent points
+}
+
+model Stock {
+  id             String   @id @default(cuid())
+  assetId        String   @unique
+  asset          Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  sector         String
+  industry       String
+  exchange       String
+  country        String   @default("US")
+  peRatio        Float?
+  dividendYield  Float?
+}
+
+model ETF {
+  id             String   @id @default(cuid())
+  assetId        String   @unique
+  asset          Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  category       String
+  aum            Float?
+  expenseRatio   Float?
+  holdingsSummary String? // JSON string of top holdings
+}
+
+model Index {
+  id             String   @id @default(cuid())
+  assetId        String   @unique
+  asset          Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  region         String
+  constituentCount Int?
+  isProprietary  Boolean  @default(false) // e.g. true for MBX-50
+}
+
+model IPO {
+  id             String   @id @default(cuid())
+  company        String
+  ticker         String   @unique
+  exchange       String
+  expectedDate   DateTime
+  priceRangeLow  Float
+  priceRangeHigh Float
+  shares         Float
+  industry       String
+  status         String   // UPCOMING, FILED, PRICED, LISTED, WITHDRAWN
+  createdAt      DateTime @default(now())
+}
+
+model Collection {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  description    String?
+  bannerImage    String?
+  avatarImage    String?
+  contract       String   @unique
+  chain          String   @default("Ethereum")
+  floorPrice     Float    @default(0.0)
+  volume24h      Float    @default(0.0)
+  totalVolume    Float    @default(0.0)
+  itemCount      Int      @default(0)
+  ownerCount     Int      @default(0)
+  createdAt      DateTime @default(now())
+  nfts           NFT[]
+}
+
+model NFT {
+  id             String      @id @default(cuid())
+  tokenId        String
+  contract       String
+  name           String
+  description    String?
+  imageUrl       String
+  collectionId   String
+  collection     Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  creatorId      String?
+  creator        User?       @relation("CreatorNFTs", fields: [creatorId], references: [id])
+  ownerId        String?
+  owner          User?       @relation("OwnerNFTs", fields: [ownerId], references: [id])
+  ownerAddress   String?
+  rarityRank     Int?
+  traits         String?     // JSON array of attributes
+  createdAt      DateTime    @default(now())
+  listings       Listing[]
+  offers         Offer[]
+  activity       ActivityEvent[]
+
+  @@unique([contract, tokenId])
+}
+
+model Listing {
+  id             String    @id @default(cuid())
+  nftId          String
+  nft            NFT       @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  sellerId       String
+  seller         User      @relation(fields: [sellerId], references: [id])
+  sellerAddress  String
+  price          Float
+  expiresAt      DateTime?
+  status         String    @default("ACTIVE") // ACTIVE, SOLD, CANCELLED
+  createdAt      DateTime  @default(now())
+}
+
+model Offer {
+  id             String    @id @default(cuid())
+  nftId          String
+  nft            NFT       @relation(fields: [nftId], references: [id], onDelete: Cascade)
+  bidderId       String
+  bidder         User      @relation(fields: [bidderId], references: [id])
+  bidderAddress  String
+  amount         Float
+  status         String    @default("PENDING") // PENDING, ACCEPTED, CANCELLED, EXPIRED
+  createdAt      DateTime  @default(now())
+}
+
+model ActivityEvent {
+  id             String    @id @default(cuid())
+  type           String    // SALE, LISTING, OFFER, TRANSFER, MINT
+  assetSymbol    String?
+  nftId          String?
+  nft            NFT?      @relation(fields: [nftId], references: [id])
+  fromAddress    String?
+  toAddress      String?
+  price          Float?
+  txHash         String?
+  timestamp      DateTime  @default(now())
+}
+
+model Portfolio {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String           @default("Main Portfolio")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  holdings       PortfolioAsset[]
+}
+
+model PortfolioAsset {
+  id             String    @id @default(cuid())
+  portfolioId    String
+  portfolio      Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  assetId        String
+  asset          Asset     @relation(fields: [assetId], references: [id])
+  quantity       Float
+  averageCost    Float
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Watchlist {
+  id             String          @id @default(cuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  createdAt      DateTime        @default(now())
+  items          WatchlistItem[]
+}
+
+model WatchlistItem {
+  id             String    @id @default(cuid())
+  watchlistId    String
+  watchlist      Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  assetId        String
+  asset          Asset     @relation(fields: [assetId], references: [id])
+  notes          String?
+  alertState     String?
+  createdAt      DateTime  @default(now())
+}
+
+model Alert {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetId        String
+  asset          Asset     @relation(fields: [assetId], references: [id])
+  condition      String    // GREATER_THAN, LESS_THAN, PCT_CHANGE_24H, VOLUME_SPIKE
+  threshold      Float
+  status         String    @default("ACTIVE") // ACTIVE, TRIGGERED, MUTED
+  lastTriggered  DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model Thesis {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assetId        String
+  asset          Asset            @relation(fields: [assetId], references: [id])
+  title          String
+  hypothesis     String
+  status         String           @default("OPEN") // OPEN, SUPPORTED, WEAKENING, INVALIDATED
+  notes          String?
+  targetPrice    Float?
+  timeframeDays  Int              @default(30)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  evidence       ThesisEvidence[]
+}
+
+model ThesisEvidence {
+  id             String    @id @default(cuid())
+  thesisId       String
+  thesis         Thesis    @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  isSupporting   Boolean   @default(true) // true for supporting, false for contradicting
+  content        String
+  metricSnapshot String?   // e.g. "ETH/BTC: 0.052, Vol: +37%"
+  createdAt      DateTime  @default(now())
+}
+
+model Scenario {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  preset         String?   // BULL, BASE, BEAR, CUSTOM
+  parameters     String    // JSON map of { "BTC": 0.20, "ETH": 0.10, "NVDA": -0.05 }
+  createdAt      DateTime  @default(now())
+}
+
+model SavedSearch {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query          String
+  filters        String?
+  createdAt      DateTime  @default(now())
+}
