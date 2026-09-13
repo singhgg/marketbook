@@ -231,6 +231,51 @@ export default function NFTDetailPage() {
                 <span className="num-mono" style={{ color: 'var(--accent-mbx50)' }}>IPFS Immutable</span>
               </div>
             </div>
+
+            {/* Contract Intelligence Module */}
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '14px',
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border-primary)',
+                borderRadius: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent-mbx50)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <ShieldCheck size={14} /> Contract Intelligence
+                </span>
+                <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '3px', backgroundColor: 'var(--color-positive-bg)', color: 'var(--color-positive)' }}>
+                  AUDIT READY
+                </span>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--ink-secondary)', margin: 0 }}>
+                Inspect verified source, deployed bytecode, proxy slots, and permissions for this digital asset.
+              </p>
+              <Link
+                href={`/contract-intelligence/ethereum/${contract}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  padding: '8px',
+                  backgroundColor: 'var(--ink-primary)',
+                  color: '#F6F1E8',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  marginTop: '4px',
+                }}
+              >
+                Inspect Contract & Bytecode &rarr;
+              </Link>
+            </div>
           </div>
         </div>
       </div>

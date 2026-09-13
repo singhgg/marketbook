@@ -69,15 +69,35 @@ export default function CollectionDetailPage() {
             />
             <div>
               <h1 style={{ fontSize: '22px', fontWeight: 800 }}>{collection.name}</h1>
-              <a
-                href={`https://etherscan.io/address/${collection.contract}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="num-mono"
-                style={{ fontSize: '11px', color: 'var(--accent-mbx50)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
-              >
-                {collection.contract.slice(0, 6)}...{collection.contract.slice(-4)} <ExternalLink size={10} />
-              </a>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '3px' }}>
+                <a
+                  href={`https://etherscan.io/address/${collection.contract}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="num-mono"
+                  style={{ fontSize: '11px', color: 'var(--ink-secondary)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+                >
+                  {collection.contract.slice(0, 6)}...{collection.contract.slice(-4)} <ExternalLink size={10} />
+                </a>
+                <Link
+                  href={`/contract-intelligence/ethereum/${collection.contract}`}
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '3px',
+                    backgroundColor: '#E0F2F1',
+                    color: '#0E6251',
+                    border: '1px solid #B2DFDB',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  Contract Intel &rarr;
+                </Link>
+              </div>
             </div>
           </div>
 

@@ -44,6 +44,7 @@ export function Header() {
     { href: '/thesis', label: 'Thesis' },
     { href: '/portfolio', label: 'Portfolio' },
     { href: '/nfts', label: 'NFTs' },
+    { href: '/contract-intelligence', label: 'Contract Intel' },
   ];
 
   return (

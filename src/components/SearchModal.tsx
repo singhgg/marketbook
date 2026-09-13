@@ -197,6 +197,8 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                           ? 'rgba(30, 64, 175, 0.12)'
                           : item.type === 'NFT' || item.type === 'COLLECTION'
                           ? 'rgba(192, 38, 211, 0.12)'
+                          : item.type === 'CONTRACT'
+                          ? '#E0F2F1'
                           : 'rgba(14, 98, 81, 0.12)',
                       color:
                         item.type === 'CRYPTO'
@@ -205,13 +207,16 @@ export function SearchModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                           ? 'var(--accent-stocks)'
                           : item.type === 'NFT' || item.type === 'COLLECTION'
                           ? 'var(--accent-nft)'
+                          : item.type === 'CONTRACT'
+                          ? '#0E6251'
                           : 'var(--accent-mbx50)',
+                      border: item.type === 'CONTRACT' ? '1px solid #B2DFDB' : 'none',
                     }}
                   >
                     {item.type}
                   </span>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--ink-primary)' }}>
+                    <div style={{ fontWeight: item.type === 'CONTRACT' ? 700 : 600, fontSize: '13px', color: item.type === 'CONTRACT' ? '#0E6251' : 'var(--ink-primary)' }}>
                       {item.symbol}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>

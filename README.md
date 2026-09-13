@@ -139,6 +139,34 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+## 5. Contract Intelligence
+
+> **"Don’t just trust the badge. Inspect what is actually deployed."**
+
+A contract being verified on Etherscan or block explorers is useful, but verification alone is **not** a complete security guarantee. Contracts can be upgradeable proxies, depend on unverified composable contracts, or contain privileged administrative backdoors.
+
+MarketBook’s **Contract Intelligence** (`/contract-intelligence`) addresses this gap by analyzing both **Verified Source Code** and **Deployed Runtime Bytecode**:
+
+- **Tri-View Code Inspection**:
+  - **VERIFIED SOURCE**: Compiler version, optimization flags, multi-file Solidity viewer, and compiler bytecode matching.
+  - **DEPLOYED BYTECODE**: Raw bytecode hex, SHA-256 hash, and full EVM opcode disassembler table with Program Counter (PC) offsets.
+  - **DECOMPILED LOGIC**: EVM reconstructed control-flow pseudo-code with explicit disclaimers: *"Decompiled from deployed bytecode. This is an approximation of contract logic and is NOT the original source code."*
+- **Proxy Detection & Storage Resolution**:
+  - Detects EIP-1967 implementation, admin, and beacon slots.
+  - Detects EIP-1167 Minimal Proxy (Clone) bytecode patterns and custom proxy patterns (e.g. FiatToken).
+  - Automatically queries and disassembles the underlying implementation contract.
+- **Evidence-Based Technical Risk Signals**:
+  - Evaluates indicators across `INFO`, `LOW`, `MEDIUM`, and `HIGH` severities (e.g. `UPGRADE_AUTHORITY_DETECTED`, `EXTERNAL_DELEGATECALL_DETECTED`, `SELFDESTRUCT_DETECTED`, `PRIVILEGED_OWNER_DETECTED`, `PAUSE_CONTROL_DETECTED`).
+  - Every flag includes: **What We Found**, **Why It Matters**, and **Evidence**.
+- **Privileged Permissions Matrix**:
+  - Detects real on-chain addresses for Owner, Admin, Upgrade Authority, Mint Authority, and Pause Authority. Never guesses addresses—explicitly outputs `NOT DETERMINED` if undetectable.
+- **On-Chain Activity**:
+  - Displays real, verified transactions fetched from public nodes and Blockscout APIs with method names, values, and timestamps.
+
+> **Disclaimer**: *MarketBook Contract Intelligence provides automated technical analysis based on publicly available blockchain data. It is not a professional smart-contract security audit and cannot guarantee contract safety or absence of vulnerabilities.*
+
+---
+
 ## 6. Verification & Automated Testing
 
 MarketBook features unit and integration test coverage for all core calculations:

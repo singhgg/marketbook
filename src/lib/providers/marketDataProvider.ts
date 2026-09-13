@@ -12,7 +12,7 @@ export interface SearchResultItem {
   id: string;
   symbol: string;
   name: string;
-  type: 'CRYPTO' | 'STOCK' | 'ETF' | 'INDEX' | 'IPO' | 'NFT' | 'COLLECTION' | 'WALLET';
+  type: 'CRYPTO' | 'STOCK' | 'ETF' | 'INDEX' | 'IPO' | 'NFT' | 'COLLECTION' | 'WALLET' | 'CONTRACT';
   price?: number;
   change24h?: number;
   url: string;
@@ -57,13 +57,20 @@ export class MarketDataProvider {
     if (!query || query.trim().length === 0) return [];
     const q = query.trim().toLowerCase();
 
-    // Check if query is a wallet address (0x...)
+    // Check if query is a contract or wallet address (0x...)
     if (q.startsWith('0x') && q.length >= 10) {
       return [
         {
+          id: `contract_${q}`,
+          symbol: 'CONTRACT FOUND',
+          name: `${q.slice(0, 8)}...${q.slice(-6)} [Analyze with Contract Intelligence]`,
+          type: 'CONTRACT',
+          url: `/contract-intelligence?address=${q}`,
+        },
+        {
           id: `wallet_${q}`,
           symbol: `${q.slice(0, 6)}...${q.slice(-4)}`,
-          name: 'Ethereum Account / Smart Contract',
+          name: 'Ethereum Account On-Chain Activity',
           type: 'WALLET',
           url: `/activity?address=${q}`,
         },
